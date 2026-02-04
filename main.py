@@ -1,7 +1,17 @@
+import logging
+import os
 import customtkinter as ctk
 from database import DatabaseManager
 from views import AccessFrame, RegisterFrame, MembersFrame, AdminFrame
 from serial_manager import SerialManager
+
+# Configure Logging
+logging.basicConfig(
+    filename='gymbase.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(module)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 ctk.set_appearance_mode("Light")
 ctk.set_default_color_theme("blue")
@@ -9,6 +19,7 @@ ctk.set_default_color_theme("blue")
 class GymApp(ctk.CTk):
     def __init__(self):
         super().__init__()
+        logging.info("Starting GymBase Application")
         
         # Initialize DB
         self.db = DatabaseManager()
@@ -68,12 +79,12 @@ class GymApp(ctk.CTk):
         self.footer_label.pack(pady=2)
 
     def create_sidebar(self):
-        self.sidebar_frame = ctk.CTkFrame(self, width=200, corner_radius=0)
+        self.sidebar_frame = ctk.CTkFrame(self, width=200, corner_radius=0, fg_color="#1a1a1a")
         self.sidebar_frame.grid(row=0, column=0, sticky="nsew")
         self.sidebar_frame.grid_rowconfigure(6, weight=1)
         
         gym_name = self.db.get_config("gym_name", "GymBase")
-        self.logo_label = ctk.CTkLabel(self.sidebar_frame, text=gym_name, font=ctk.CTkFont(size=28, weight="bold"), text_color="black")
+        self.logo_label = ctk.CTkLabel(self.sidebar_frame, text=gym_name, font=ctk.CTkFont(size=28, weight="bold"), text_color="white")
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
         
         self.btn_access = ctk.CTkButton(self.sidebar_frame, text="Inicio / Acceso", font=("Roboto", 16), height=40, text_color="white", command=lambda: self.select_frame("access"))

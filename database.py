@@ -1,4 +1,5 @@
 import sqlite3
+import logging
 from datetime import datetime, timedelta
 
 class DatabaseManager:
@@ -7,13 +8,18 @@ class DatabaseManager:
         self.init_db()
 
     def connect(self):
-        return sqlite3.connect(self.db_name)
+        try:
+            return sqlite3.connect(self.db_name)
+        except sqlite3.Error as e:
+            logging.error(f"Failed to connect to database: {e}")
+            raise
 
     def init_db(self):
-        conn = self.connect()
-        cursor = conn.cursor()
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS members (
+        try:
+            conn = self.connect()
+            cursor = conn.cursor()
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS members (
                 id TEXT PRIMARY KEY,
                 name TEXT NOT NULL,
                 age INTEGER,
@@ -25,14 +31,16 @@ class DatabaseManager:
                 frozen_date TEXT
             )
         ''')
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS config (
-                key TEXT PRIMARY KEY,
-                value TEXT
-            )
-        ''')
-        conn.commit()
-        conn.close()
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS config (
+                    key TEXT PRIMARY KEY,
+                    value TEXT
+                )
+            ''')
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            logging.error(f"Error initializing database: {e}")
 
     def get_config(self, key, default=None):
         conn = self.connect()
@@ -69,8 +77,13 @@ class DatabaseManager:
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             ''', (user_id, name, age, address, phone, registration_date, membership_end_date))
             conn.commit()
+            logging.info(f"New member registered: {name} (ID: {user_id})")
             return True
         except sqlite3.IntegrityError:
+            logging.warning(f"Failed to add member, ID exists: {user_id}")
+            return False
+        except Exception as e:
+            logging.error(f"Error adding member {user_id}: {e}")
             return False
         finally:
             conn.close()

@@ -1,6 +1,7 @@
 import serial
 import threading
 import time
+import logging
 
 class SerialManager:
     def __init__(self, port, baudrate, callback_code):
@@ -13,20 +14,23 @@ class SerialManager:
 
     def start(self):
         if self.running or not self.port:
-            return
+            return False
         
         try:
             self.serial_conn = serial.Serial(self.port, self.baudrate, timeout=1)
             self.running = True
             self.thread = threading.Thread(target=self._listen, daemon=True)
             self.thread.start()
+            logging.info(f"Serial connection started on {self.port} at {self.baudrate}")
             return True
         except Exception as e:
-            print(f"Error starting serial: {e}")
+            logging.error(f"Error starting serial on {self.port}: {e}")
             return False
 
     def stop(self):
-        self.running = False
+        if self.running:
+            self.running = False
+            logging.info("Stopping serial connection")
         if self.serial_conn:
             try:
                 self.serial_conn.close()
@@ -47,6 +51,7 @@ class SerialManager:
                         elif data == '#':
                             # End of code
                             if buffer:
+                                logging.debug(f"Serial code received: {buffer}")
                                 self.callback_code(buffer)
                             buffer = ""
                         elif data.isdigit():
@@ -55,5 +60,5 @@ class SerialManager:
                 else:
                     time.sleep(0.5)
             except Exception as e:
-                print(f"Serial Error: {e}")
+                logging.error(f"Serial Error in listen loop: {e}")
                 time.sleep(1)

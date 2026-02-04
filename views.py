@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from tkinter import messagebox
 from datetime import datetime
+import logging
 from database import DatabaseManager
 from tkcalendar import DateEntry
 from dateutil.relativedelta import relativedelta
@@ -46,17 +47,21 @@ class AccessFrame(ctk.CTkFrame):
             if is_frozen:
                 self.status_label.configure(text="MEMBRESÍA CONGELADA", text_color="orange")
                 self.info_label.configure(text=f"Usuario: {name}")
+                logging.info(f"Access DENIED (Frozen) for user: {user_id} ({name})")
             elif end_date >= datetime.now():
                 days_left = (end_date - datetime.now()).days
                 self.status_label.configure(text="ACCESO CONCEDIDO", text_color="green")
                 self.info_label.configure(text=f"Bienvenido, {name}\nVence en {days_left + 1} días ({end_date_str})")
+                logging.info(f"Access GRANTED for user: {user_id} ({name})")
             else:
                 self.status_label.configure(text="MEMBRESÍA VENCIDA", text_color="red")
                 self.info_label.configure(text=f"Usuario: {name}\nVenció el {end_date_str}")
+                logging.warning(f"Access DENIED (Expired) for user: {user_id} ({name})")
                 
         else:
             self.status_label.configure(text="USUARIO NO ENCONTRADO", text_color="red")
             self.info_label.configure(text="")
+            logging.warning(f"Access DENIED (NotFound) for ID: {user_id}")
             
         self.entry_id.delete(0, 'end')
 
