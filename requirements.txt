@@ -1,0 +1,5 @@
+customtkinter
+pillow
+tkcalendar
+python-dateutil
+pyserial
