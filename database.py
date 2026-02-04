@@ -13,6 +13,11 @@ class DatabaseManager:
         except sqlite3.Error as e:
             logging.error(f"Failed to connect to database: {e}")
             raise
+    
+    def close(self):
+        # Helper for tests or explicit cleanup if needed, 
+        # though we currently close connection per method.
+        pass
 
     def init_db(self):
         try:

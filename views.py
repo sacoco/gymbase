@@ -7,12 +7,15 @@ from tkcalendar import DateEntry
 from dateutil.relativedelta import relativedelta
 import serial.tools.list_ports
 from serial_manager import SerialManager
+import sys
+import os
 
 class AccessFrame(ctk.CTkFrame):
     def __init__(self, master, db: DatabaseManager):
         super().__init__(master)
         self.db = db
         
+        # Content Container removed to simplify UI as requested
         self.label_title = ctk.CTkLabel(self, text="Control de Acceso", font=("Roboto", 32, "bold"))
         self.label_title.pack(pady=30)
 

@@ -3,3 +3,4 @@ pillow
 tkcalendar
 python-dateutil
 pyserial
+pyinstaller
